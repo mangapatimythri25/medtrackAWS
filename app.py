@@ -169,7 +169,7 @@ def register():
         password = request.form['password']
         age = request.form['age']
         gender = request.form['gender']
-        # role = request.form['role']
+        role = request.form['role']
 
         # Check if user already exists
         existing_user = db.get_user(email)
