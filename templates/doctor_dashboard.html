@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+
+{% block title %}Doctor Dashboard{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2 class="mb-4 text-primary">Welcome, Dr. {{ session.get('name', '') }}!</h2>
+    <!-- Appointment Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="card text-center border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="text-warning mb-2" style="font-size:2rem;"><i class="bi bi-hourglass-split"></i></div>
+                    <h6 class="card-title">Pending Appointments</h6>
+                    <h3 class="fw-bold">{{ pending_count or 0 }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card text-center border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="text-success mb-2" style="font-size:2rem;"><i class="bi bi-check-circle"></i></div>
+                    <h6 class="card-title">Completed Appointments</h6>
+                    <h3 class="fw-bold">{{ completed_count or 0 }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card text-center border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="text-info mb-2" style="font-size:2rem;"><i class="bi bi-list-ol"></i></div>
+                    <h6 class="card-title">Total Appointments</h6>
+                    <h3 class="fw-bold">{{ total_count or 0 }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Tab Navigation -->
+    <ul class="nav nav-tabs mb-4" id="apptTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab" aria-controls="pending" aria-selected="true">Pending Appointments</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="completed-tab" data-bs-toggle="tab" data-bs-target="#completed" type="button" role="tab" aria-controls="completed" aria-selected="false">Completed Appointments</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab" aria-controls="all" aria-selected="false">All Appointments</button>
+      </li>
+    </ul>
+    <div class="tab-content" id="apptTabsContent">
+      <!-- Pending Appointments Tab -->
+      <div class="tab-pane fade show active" id="pending" role="tabpanel" aria-labelledby="pending-tab">
+        <div class="card shadow mb-4">
+          <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Pending Appointments</h5>
+            <form class="d-flex" method="get" action="">
+              <input class="form-control form-control-sm me-2" type="search" name="pending_patient_search" placeholder="Search patient name..." aria-label="Search">
+              <button class="btn btn-outline-dark btn-sm" type="submit"><i class="bi bi-search"></i> Search</button>
+            </form>
+          </div>
+          <div class="card-body p-0">
+            {% set pending_appts = appointments | selectattr('status', 'equalto', 'pending') | list %}
+            {% if pending_appts and pending_appts|length > 0 %}
+              <div class="table-responsive">
+                <table class="table table-striped mb-0">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Patient Name</th>
+                      <th>Date</th>
+                      <th>Symptoms</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  {% for appt in pending_appts %}
+                    <tr>
+                      <td>{{ appt.patient_name }}</td>
+                      <td>{{ appt.appointment_date }}</td>
+                      <td>{{ appt.symptoms }}</td>
+                      <td><span class="badge bg-warning text-dark">Pending</span></td>
+                      <td><a href="{{ url_for('view_appointment', appointment_id=appt.appointment_id) }}" class="btn btn-sm btn-outline-primary">View Details</a></td>
+                    </tr>
+                  {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            {% else %}
+              <div class="p-4 text-center text-muted">No pending appointments found.</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      <!-- Completed Appointments Tab -->
+      <div class="tab-pane fade" id="completed" role="tabpanel" aria-labelledby="completed-tab">
+        <div class="card shadow mb-4">
+          <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Completed Appointments</h5>
+            <form class="d-flex" method="get" action="">
+              <input class="form-control form-control-sm me-2" type="search" name="completed_patient_search" placeholder="Search patient name..." aria-label="Search">
+              <button class="btn btn-outline-light btn-sm" type="submit"><i class="bi bi-search"></i> Search</button>
+            </form>
+          </div>
+          <div class="card-body p-0">
+            {% set completed_appts = appointments | selectattr('status', 'equalto', 'completed') | list %}
+            {% if completed_appts and completed_appts|length > 0 %}
+              <div class="table-responsive">
+                <table class="table table-striped mb-0">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Patient Name</th>
+                      <th>Date</th>
+                      <th>Symptoms</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  {% for appt in completed_appts %}
+                    <tr>
+                      <td>{{ appt.patient_name }}</td>
+                      <td>{{ appt.appointment_date }}</td>
+                      <td>{{ appt.symptoms }}</td>
+                      <td><span class="badge bg-success">Completed</span></td>
+                      <td><a href="{{ url_for('view_appointment', appointment_id=appt.appointment_id) }}" class="btn btn-sm btn-outline-primary">View Details</a></td>
+                    </tr>
+                  {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            {% else %}
+              <div class="p-4 text-center text-muted">No completed appointments found.</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      <!-- All Appointments Tab -->
+      <div class="tab-pane fade" id="all" role="tabpanel" aria-labelledby="all-tab">
+        <div class="card shadow mb-4">
+          <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">All Appointments</h5>
+            <form class="d-flex" method="get" action="">
+              <input class="form-control form-control-sm me-2" type="search" name="all_patient_search" placeholder="Search patient name..." aria-label="Search">
+              <button class="btn btn-outline-light btn-sm" type="submit"><i class="bi bi-search"></i> Search</button>
+            </form>
+          </div>
+          <div class="card-body p-0">
+            {% if appointments and appointments|length > 0 %}
+              <div class="table-responsive">
+                <table class="table table-striped mb-0">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Patient Name</th>
+                      <th>Date</th>
+                      <th>Symptoms</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  {% for appt in appointments %}
+                    <tr>
+                      <td>{{ appt.patient_name }}</td>
+                      <td>{{ appt.appointment_date }}</td>
+                      <td>{{ appt.symptoms }}</td>
+                      <td>
+                        {% if appt.status and appt.status|lower == 'completed' %}
+                          <span class="badge bg-success">Completed</span>
+                        {% elif appt.status and appt.status|lower == 'pending' %}
+                          <span class="badge bg-warning text-dark">Pending</span>
+                        {% else %}
+                          <span class="badge bg-secondary">Unknown</span>
+                        {% endif %}
+                      </td>
+                      <td><a href="{{ url_for('view_appointment', appointment_id=appt.appointment_id) }}" class="btn btn-sm btn-outline-primary">View Details</a></td>
+                    </tr>
+                  {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            {% else %}
+              <div class="p-4 text-center text-muted">No appointments found.</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- End Tabs -->
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Appointment Details{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2 class="mb-4 text-primary">Appointment Details (Doctor View)</h2>
+    {% if appointment %}
+    <div class="card shadow-lg border-0 mb-4">
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-sm-4">Patient Name:</dt>
+                <dd class="col-sm-8">{{ appointment.patient_name }}</dd>
+                <dt class="col-sm-4">Date:</dt>
+                <dd class="col-sm-8">{{ appointment.appointment_date }}</dd>
+                <dt class="col-sm-4">Time:</dt>
+                <dd class="col-sm-8">{{ appointment.appointment_time if appointment.appointment_time else '—' }}</dd>
+                <dt class="col-sm-4">Symptoms:</dt>
+                <dd class="col-sm-8">{{ appointment.symptoms }}</dd>
+                <dt class="col-sm-4">Status:</dt>
+                <dd class="col-sm-8">
+                    {% if appointment.status %}
+                        <span class="badge bg-success">{{ appointment.status|capitalize }}</span>
+                    {% else %}
+                        <span class="badge bg-secondary">Pending</span>
+                    {% endif %}
+                </dd>
+                {% if appointment.diagnosis %}
+                <dt class="col-sm-4">Diagnosis:</dt>
+                <dd class="col-sm-8">{{ appointment.diagnosis }}</dd>
+                {% endif %}
+                {% if appointment.treatment_plan %}
+                <dt class="col-sm-4">Treatment Plan:</dt>
+                <dd class="col-sm-8">{{ appointment.treatment_plan }}</dd>
+                {% endif %}
+                {% if appointment.prescription %}
+                <dt class="col-sm-4">Prescription:</dt>
+                <dd class="col-sm-8">{{ appointment.prescription }}</dd>
+                {% endif %}
+            </dl>
+        </div>
+    </div>
+    <!-- Record Diagnosis & Treatment Plan -->
+    <div class="card shadow border-0 mb-4">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0">Record Diagnosis & Treatment Plan</h5>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('submit_diagnosis', appointment_id=appointment.appointment_id) }}">
+                <div class="mb-3">
+                    <label for="diagnosis" class="form-label">Diagnosis</label>
+                    <textarea class="form-control" id="diagnosis" name="diagnosis" rows="2" placeholder="Enter diagnosis..." required></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="treatment_plan" class="form-label">Treatment Plan</label>
+                    <textarea class="form-control" id="treatment_plan" name="treatment_plan" rows="2" placeholder="Describe the treatment plan..." required></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="prescription" class="form-label">Prescription</label>
+                    <textarea class="form-control" id="prescription" name="prescription" rows="2" placeholder="Write prescription details (Optional)"></textarea>
+                </div>
+                <button type="submit" class="btn btn-success">Submit Diagnosis</button>
+            </form>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-danger">Appointment not found.</div>
+    {% endif %}
+    <div class="text-center mt-3">
+        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary"><i class="bi bi-arrow-left"></i> Back to Dashboard</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+{% endblock %}
